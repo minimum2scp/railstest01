@@ -1,0 +1,15 @@
+-
+  hosts: all
+  sudo: yes
+  handlers:
+    - name: restart nginx
+      service: name=nginx state=restarted
+  tasks:
+    - file: path=/etc/nginx/sites-enabled/default state=absent
+      notify: restart nginx
+    - copy: src=files/nginx-site-railstest01.conf dest=/etc/nginx/sites-available/railstest01.conf
+      notify: restart nginx
+    - file: src=/etc/nginx/sites-available/railstest01.conf path=/etc/nginx/sites-enabled/railstest01.conf state=link
+      notify: restart nginx
+    - service: name=nginx state=started
+    - file: dest=/var/www/railstest01 state=directory owner=debian group=debian
