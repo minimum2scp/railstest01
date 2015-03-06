@@ -20,7 +20,7 @@ stdout_path "#{rails_root}/log/unicorn_stdout.log"
 preload_app true
 
 before_exec do |server|
-  ENV['BUNDLE_GEMFILE'] = "/var/www/railstest01"
+  ENV['BUNDLE_GEMFILE'] = "/var/www/railstest01/current/Gemfile"
 end
 
 before_fork do |server, worker|
