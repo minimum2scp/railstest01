@@ -54,6 +54,25 @@ namespace :deploy do
     end
   end
 
+  {
+    "secrets" => "config/secrets.yml",
+    "database_yml" => "config/database.yml",
+  }.each do |name, local_path|
+    desc "upload #{local_path}"
+    task :"upload_#{name}" => [:set_rails_env] do
+      on roles(:app) do |host|
+        info "upload #{local_path}"
+        remote_path = File.expand_path(local_path, shared_path)
+        remote_path.sub!(".example", "")
+        dir = File.dirname(remote_path)
+        if test "[ ! -d #{dir} ]"
+          execute "mkdir -p #{dir}"
+        end
+        upload!(local_path, remote_path)
+      end
+    end
+  end
+
   desc "upload .env"
   task :"upload_dotenv" do
     local_path = "config/deploy/#{fetch(:stage)}.env"
@@ -70,7 +89,7 @@ namespace :deploy do
 end
 
 set :rbenv_type, :system # :system or :user
-set :rbenv_root, '/opt/rbenv'
+set :rbenv_path, '/opt/rbenv'
 set :rbenv_ruby, '2.1.5'
 set :rbenv_prefix, "RBENV_ROOT=#{fetch(:rbenv_path)} RBENV_VERSION=#{fetch(:rbenv_ruby)} #{fetch(:rbenv_path)}/bin/rbenv exec"
 set :rbenv_map_bins, %w{rake gem bundle ruby rails}
